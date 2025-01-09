@@ -19,7 +19,7 @@ module ::DiscoursePrivateTopics
   # Функция для скрытия темы
   def self.hide_topic(topic)
     # Пропускаем закрепленные или уже скрытые темы
-    return if topic.pinned || topic.hidden
+    return if topic.pinned_at.present? || topic.hidden
 
     # Скрываем тему, используя встроенные методы Discourse
     topic.update_status("visible", false)
@@ -33,7 +33,7 @@ module ::DiscoursePrivateTopics
 
   # Функция для обработки всех тем
   def self.process_topics
-    Topic.where.not(pinned: true).where.not(hidden: true).find_each do |topic|
+    Topic.where(pinned_at: nil).where.not(hidden: true).find_each do |topic|
       # Пропускаем тему с определенным ID из настроек
       excluded_topic_id = SiteSetting.excluded_topic_id.to_i rescue -1
       next if topic.id == excluded_topic_id
